@@ -12,5 +12,5 @@ A terminal-based tool to check availability of Roblox usernames.
 ## Requirements
 - Python 3.7+
 - Install dependencies with:
-  
+  ```bash
   pip install -r requirements.txt
