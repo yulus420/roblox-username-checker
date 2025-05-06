@@ -11,7 +11,7 @@ init(autoreset=True)
 
 ROBLOX_VALIDATE_URL = "https://auth.roblox.com/v1/usernames/validate?Username={}&Birthday=2000-01-01"
 VALID_FILE = "valid.txt"
-REQUEST_DELAY = 0.01  
+REQUEST_DELAY = 0.05  
 START_TIME = time.time()
 
 def set_console_title(title):
@@ -107,25 +107,26 @@ def generate_random_usernames(length, count, use_digits=True):
     return [''.join(random.choices(charset, k=length)) for _ in range(count)]
 
 async def run_check(usernames):
-    stats.update({"valid": 0, "taken": 0, "censored": 0, "unknown": 0, "checked": 0, "total": len(usernames), "times": []})
+    stats.update({"valid": 0, "taken": 0, "censored": 0, "unknown": 0, "checked": 0, "total": len(usernames)})
+    
+    start_time = time.time()  
 
     async with aiohttp.ClientSession() as session:
-        tasks = [check_username(session, username) for username in usernames]
-        await asyncio.gather(*tasks)
+        for username in usernames:
+            await check_username(session, username)
 
-    elapsed_seconds = time.time() - START_TIME
-    elapsed_time = time.strftime("%H:%M:%S", time.gmtime(elapsed_seconds))
-    avg_time = elapsed_seconds / stats["checked"] if stats["checked"] else 0
+    elapsed_time = time.time() - start_time
+    elapsed_formatted = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
+    avg_time_per_username = elapsed_time / stats["checked"] if stats["checked"] > 0 else 0
 
-    set_console_title(f"Valid: {stats['valid']} | Taken: {stats['taken']}")
-    print(Fore.BLUE + f"\nDone!\nChecked: {stats['checked']} | Valid: {stats['valid']} | Taken: {stats['taken']} | "
-                      f"Censored: {stats['censored']} | Errors: {stats['unknown']} | "
-                      f"Elapsed: {elapsed_time} | Avg per username: {avg_time:.2f}s")
+    set_console_title(f"Valid: {stats['valid']} | Taken: {stats['taken']} | Elapsed: {elapsed_formatted}")
+
+    print(Fore.BLUE + f"\nDone!\nChecked: {stats['checked']} | Valid: {stats['valid']} | Taken: {stats['taken']} | Censored: {stats['censored']} | Errors: {stats['unknown']}")
+    print(Fore.YELLOW + f"Time taken: {elapsed_formatted} ({elapsed_time:.2f} seconds)" + Style.RESET_ALL)
+    print(Fore.YELLOW + f"Average time per username: {avg_time_per_username:.2f} seconds" + Style.RESET_ALL)
 
     input(Fore.CYAN + "\nPress Enter to return to the menu..." + Style.RESET_ALL)
-    clear_screen()
-
-    clear_screen()
+    clear_screen()  
     print(BANNER)
 
 def print_menu(current_delay):
@@ -176,7 +177,7 @@ async def main():
 
                 use_digits = await generate_username_options()
                 usernames = generate_random_usernames(length, count, use_digits)
-                clear_screen() 
+                clear_screen()
                 await run_check(usernames)
 
             except ValueError:
