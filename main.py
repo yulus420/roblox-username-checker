@@ -11,7 +11,7 @@ init(autoreset=True)
 
 ROBLOX_VALIDATE_URL = "https://auth.roblox.com/v1/usernames/validate?Username={}&Birthday=2000-01-01"
 VALID_FILE = "valid.txt"
-REQUEST_DELAY = 0.05  
+REQUEST_DELAY = 0.02
 START_TIME = time.time()
 
 def set_console_title(title):
@@ -150,7 +150,7 @@ async def generate_username_options():
     else:
         print(Fore.RED + "Invalid option. Please choose 1 or 2.")
         return await generate_username_options()
-
+    
 async def main():
     global REQUEST_DELAY
     clear_screen()
@@ -167,6 +167,13 @@ async def main():
                 continue
             with open("usernames.txt", "r") as f:
                 usernames = f.read().splitlines()
+
+            clear_choice = input(Fore.YELLOW + "Do you want to clear 'valid.txt' before checking? (y/n): " + Style.RESET_ALL).lower()
+            if clear_choice == 'y':
+                open(VALID_FILE, "w").close()
+                print(Fore.GREEN + "'valid.txt' has been cleared.")
+                await asyncio.sleep(1)
+
             await run_check(usernames)
 
         elif choice == "2":
@@ -177,6 +184,13 @@ async def main():
 
                 use_digits = await generate_username_options()
                 usernames = generate_random_usernames(length, count, use_digits)
+
+                clear_choice = input(Fore.YELLOW + "Do you want to clear 'valid.txt' before checking? (y/n): " + Style.RESET_ALL).lower()
+                if clear_choice == 'y':
+                    open(VALID_FILE, "w").close()
+                    print(Fore.GREEN + "'valid.txt' has been cleared.")
+                    await asyncio.sleep(1)
+
                 clear_screen()
                 await run_check(usernames)
 
@@ -201,3 +215,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
