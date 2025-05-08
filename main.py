@@ -11,7 +11,7 @@ init(autoreset=True)
 
 ROBLOX_VALIDATE_URL = "https://auth.roblox.com/v1/usernames/validate?Username={}&Birthday=2000-01-01"
 VALID_FILE = "valid.txt"
-REQUEST_DELAY = 0.02
+REQUEST_DELAY = 0.05
 START_TIME = time.time()
 
 def set_console_title(title):
