@@ -11,7 +11,7 @@ init(autoreset=True)
 
 ROBLOX_VALIDATE_URL = "https://auth.roblox.com/v1/usernames/validate?Username={}&Birthday=2000-01-01"
 VALID_FILE = "valid.txt"
-REQUEST_DELAY = 0.05
+REQUEST_DELAY = 0.02
 START_TIME = time.time()
 
 def set_console_title(title):
@@ -72,11 +72,17 @@ async def check_username(session, username):
 
             remaining_time_seconds = (stats["total"] - stats["checked"]) * avg_time_per_request
             remaining_time = time.strftime("%H:%M:%S", time.gmtime(remaining_time_seconds))
+            eta_timestamp = time.time() + remaining_time_seconds
+            eta_formatted = time.strftime("%H:%M:%S", time.localtime(eta_timestamp))
 
             progress_percentage = (stats["checked"] / stats["total"]) * 100
-            set_console_title(f"Progress: {progress_percentage:.2f}% | Checked {stats['checked']}/{stats['total']} | Valid: {stats['valid']} | Elapsed: {elapsed_time} | Remaining: {remaining_time}")
+            set_console_title(
+                f"Progress: {progress_percentage:.2f}% | Checked {stats['checked']}/{stats['total']} | "
+                f"Valid: {stats['valid']} | Elapsed: {elapsed_time} | Remaining: {remaining_time} | ETA: {eta_formatted}"
+            )
 
             stats["times"].append(time.time() - start_time)
+
 
             if code == 0:
                 stats["valid"] += 1
@@ -98,6 +104,7 @@ async def check_username(session, username):
         stats["unknown"] += 1
 
     await asyncio.sleep(REQUEST_DELAY)
+
 
 def generate_random_usernames(length, count, use_digits=True):
     if use_digits:
